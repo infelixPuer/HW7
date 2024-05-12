@@ -66,3 +66,47 @@ promiseAllSettled(promisesAllSettled)
         //            { status: 'rejected', reason: 'Error occurred' },
         //            { status: 'fulfilled', value: 3 }]
     });
+
+// Task 3: Implement Chaining of Promises as a Separate Function
+function chainPromises(promises) {
+    return new Promise((resolve, reject) => {
+        let result = "";
+
+        promises.forEach(promise => {
+            promise(result)
+                .then(value => {
+                    return result += value;
+                })
+                .catch(reason => {
+                    reject(reason);
+                })
+                .finally(() => {
+                    resolve(result);
+                });
+        });
+    });
+}
+
+function asyncFunction1() {
+    return Promise.resolve("Result from asyncFunction1");
+}
+
+function asyncFunction2(data) {
+    return Promise.resolve(data + " - Result from asyncFunction2");
+    // return Promise.reject(`${arguments.callee.name} failed!`);
+}
+
+function asyncFunction3(data) {
+    return Promise.resolve(data + " - Result from asyncFunction3");
+}
+
+const functionsArray = [asyncFunction1, asyncFunction2, asyncFunction3];
+
+chainPromises(functionsArray)
+    .then(result => {
+        console.log("Chained promise result:", result);
+        // Expected: "Result from asyncFunction1 - Result from asyncFunction2 - Result from asyncFunction3"
+    })
+    .catch(error => {
+        console.error("Chained promise error:", error);
+    });
